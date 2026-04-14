@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import ClientsTab from '@/components/ClientsTab';
 import MembersTab from '@/components/MembersTab';
 import TasksTab from '@/components/TasksTab';
@@ -28,6 +29,7 @@ export default function Home() {
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const fetchAll = useCallback(async () => {
     try {
@@ -153,6 +155,13 @@ export default function Home() {
     setTasks(prev => prev.map(t => (t._id === id ? updated : t)));
   };
 
+  /* ---- Auth ---- */
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+    router.refresh();
+  };
+
   /* ---- Categories & Templates ---- */
   const addCategory = async (name: string) => {
     const res = await fetch('/api/categories', {
@@ -227,7 +236,10 @@ export default function Home() {
 
   return (
     <div className="wrap">
-      <h1>Team Task Manager</h1>
+      <div className="dash-header">
+        <h1 style={{ margin: 0 }}>Team Task Manager</h1>
+        <button onClick={handleLogout} className="logout-btn">Sign out</button>
+      </div>
       <div className="tabs">
         {TABS.map(tab => (
           <button
