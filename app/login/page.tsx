@@ -15,7 +15,7 @@ export default function LoginPage() {
     if (!username.trim() || !password) return;
     setLoading(true);
     setError('');
-
+/* test  */
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
