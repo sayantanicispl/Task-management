@@ -416,11 +416,16 @@ button.danger:hover { background: var(--danger-bg); }
 /* Time select: grows to fill .t-time-cell width */
 .t-ctrl--time   { flex: 1; }
 
-/* Custom hrs input: fixed narrow width, shares the time cell */
+/* Custom input replaces the select — locked to the column width */
 .t-ctrl--custom {
-  flex: none;
-  width: 58px;
+  flex: 1;
+  width: 0;          /* flex-basis 0 so it can't push past the column */
+  min-width: 0;      /* override global input { min-width: 120px } */
+  max-width: 100%;
+  appearance: textfield; /* remove spinner arrows that add ~20px */
 }
+.t-ctrl--custom::-webkit-inner-spin-button,
+.t-ctrl--custom::-webkit-outer-spin-button { display: none; }
 
 /* Status select: fills full 164px column.
    Border is kept visible by default (same as time select) so

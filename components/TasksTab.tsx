@@ -162,36 +162,37 @@ export default function TasksTab({
                   )}
                 </div>
 
-                {/* Time */}
+                {/* Time — shows select OR custom input, never both */}
                 <div className="t-time-cell">
-                  <select
-                    className="t-ctrl t-ctrl--time"
-                    value={timeVal}
-                    onChange={e => handleTimeSelect(t._id, e.target.value)}
-                  >
-                    <option value="">—</option>
-                    <option value="0.5">0.5 hr</option>
-                    <option value="1">1 hr</option>
-                    <option value="2">2 hr</option>
-                    <option value="3">3 hr</option>
-                    {hasCustomTime && (
-                      <option value={String(displayTime)}>{displayTime} hr</option>
-                    )}
-                    <option value="custom">Custom…</option>
-                  </select>
-                  {isCustom && (
+                  {isCustom ? (
                     <input
                       type="number"
                       className="t-ctrl t-ctrl--custom"
                       min="0.5"
                       step="0.5"
-                      placeholder="hrs"
+                      placeholder="e.g. 1.5"
                       value={customInputs[t._id]}
                       onChange={e => setCustomInputs(prev => ({ ...prev, [t._id]: e.target.value }))}
                       onBlur={() => handleCustomSubmit(t._id)}
                       onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleCustomSubmit(t._id); } }}
                       autoFocus
                     />
+                  ) : (
+                    <select
+                      className="t-ctrl t-ctrl--time"
+                      value={timeVal}
+                      onChange={e => handleTimeSelect(t._id, e.target.value)}
+                    >
+                      <option value="">—</option>
+                      <option value="0.5">0.5 hr</option>
+                      <option value="1">1 hr</option>
+                      <option value="2">2 hr</option>
+                      <option value="3">3 hr</option>
+                      {hasCustomTime && (
+                        <option value={String(displayTime)}>{displayTime} hr</option>
+                      )}
+                      <option value="custom">Custom…</option>
+                    </select>
                   )}
                 </div>
 
