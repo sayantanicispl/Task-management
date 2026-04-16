@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { IClient, IMember } from '@/types';
 import Avatar from './Avatar';
 
@@ -21,6 +22,7 @@ export default function MembersTab({
   onUpdateClients,
   onUpdatePhoto,
 }: Props) {
+  const router = useRouter();
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [loading, setLoading] = useState(false);
@@ -117,6 +119,12 @@ export default function MembersTab({
                   <div className="meta-name">{m.name}</div>
                   {m.role && <div className="meta-sub">{m.role}</div>}
                 </div>
+                <button onClick={() => router.push(`/team-members/${m._id}`)}>
+                  View Profile
+                </button>
+                <button onClick={() => router.push(`/team-members/${m._id}/work-status`)}>
+                  Work Status
+                </button>
                 <button className="danger" onClick={() => onRemove(m._id)}>
                   Remove
                 </button>

@@ -13,6 +13,11 @@ export interface IMember {
   role: string;
   clientIds: string[];
   photo: string | null;
+  email?: string;
+  contact?: string;
+  experience?: string;
+  telegram?: string;
+  skills?: string[];
 }
 
 export interface ITask {

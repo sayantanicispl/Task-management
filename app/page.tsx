@@ -21,7 +21,10 @@ const TABS: { id: TabName; label: string }[] = [
   { id: 'templates', label: 'Templates' },
 ];
 
+const TAB_IDS = TABS.map(t => t.id);
+
 export default function Home() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabName>('clients');
   const [clients, setClients] = useState<IClient[]>([]);
   const [members, setMembers] = useState<IMember[]>([]);
@@ -29,7 +32,11 @@ export default function Home() {
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('activeTab') as TabName | null;
+    if (saved && TAB_IDS.includes(saved)) setActiveTab(saved);
+  }, []);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -267,7 +274,7 @@ export default function Home() {
           <button
             key={tab.id}
             className={`tab${activeTab === tab.id ? ' active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => { setActiveTab(tab.id); localStorage.setItem('activeTab', tab.id); }}
           >
             {tab.label}
           </button>
