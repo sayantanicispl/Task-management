@@ -155,6 +155,28 @@ export default function Home() {
     setTasks(prev => prev.map(t => (t._id === id ? updated : t)));
   };
 
+  const updateTaskTime = async (id: string, hours: number) => {
+    const res = await fetch(`/api/tasks/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timeSpent: hours }),
+    });
+    if (!res.ok) return;
+    const updated = await res.json();
+    setTasks(prev => prev.map(t => (t._id === id ? updated : t)));
+  };
+
+  const updateTaskStatus = async (id: string, status: string) => {
+    const res = await fetch(`/api/tasks/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) return;
+    const updated = await res.json();
+    setTasks(prev => prev.map(t => (t._id === id ? updated : t)));
+  };
+
   /* ---- Auth ---- */
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -277,7 +299,8 @@ export default function Home() {
           clients={clients}
           onAdd={addTask}
           onRemove={removeTask}
-          onToggle={toggleTask}
+          onUpdateTime={updateTaskTime}
+          onUpdateStatus={updateTaskStatus}
         />
       )}
       {activeTab === 'distribute' && (

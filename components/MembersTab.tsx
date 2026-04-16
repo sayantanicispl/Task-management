@@ -123,42 +123,33 @@ export default function MembersTab({
               </div>
 
               {clients.length > 0 && (
-                <div style={{ paddingTop: 10 }}>
-                  <div style={{ fontSize: 12, color: 'var(--text2)', marginBottom: 6 }}>
-                    Assigned clients
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px 6px' }}>
-                    <label
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 4,
-                        fontSize: 13, cursor: 'pointer', padding: '2px 0', fontWeight: 500,
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        className="cb"
-                        checked={allChecked}
-                        onChange={e => toggleAllClients(m._id, e.target.checked)}
-                      />
-                      All clients
-                    </label>
+                <div className="ac-section">
+                  <div className="ac-section-header">Assigned clients</div>
+
+                  {/* Select all — full width, above the grid */}
+                  <label className="ac-item ac-item--all">
+                    <input
+                      type="checkbox"
+                      className="ac-cb"
+                      checked={allChecked}
+                      onChange={e => toggleAllClients(m._id, e.target.checked)}
+                    />
+                    <span>All clients</span>
+                  </label>
+
+                  {/* 2-column grid of individual clients */}
+                  <div className="ac-grid">
                     {clients.map(c => (
-                      <label
-                        key={c._id}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 4,
-                          fontSize: 13, cursor: 'pointer', padding: '2px 0',
-                        }}
-                      >
+                      <label key={c._id} className="ac-item">
                         <input
                           type="checkbox"
-                          className="cb"
+                          className="ac-cb"
                           checked={m.clientIds.includes(c._id)}
                           onChange={e =>
                             toggleClientAssign(m._id, m.clientIds, c._id, e.target.checked)
                           }
                         />
-                        {c.name}
+                        <span>{c.name}</span>
                       </label>
                     ))}
                   </div>

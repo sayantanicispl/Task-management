@@ -20,6 +20,8 @@ export interface ITask {
   name: string;
   clientId: string | null;
   done: boolean;
+  timeSpent: number;
+  status: string;
 }
 
 export interface ITemplate {

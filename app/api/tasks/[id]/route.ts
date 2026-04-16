@@ -24,7 +24,8 @@ export async function PATCH(
     const { id } = await params;
     await dbConnect();
     const body = await request.json();
-    const task = await Task.findByIdAndUpdate(id, body, { new: true }).lean();
+    // Explicit $set ensures Mongoose strict mode never silently drops fields
+    const task = await Task.findByIdAndUpdate(id, { $set: body }, { new: true }).lean();
     if (!task) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
