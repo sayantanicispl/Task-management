@@ -8,7 +8,7 @@ import TasksTab from '@/components/TasksTab';
 import DistributionTab from '@/components/DistributionTab';
 import PlansTab from '@/components/PlansTab';
 import TemplatesTab from '@/components/TemplatesTab';
-import type { IClient, IMember, ITask, ICategory, ClientPlan } from '@/types';
+import type { IClient, IMember, ITask, ICategory, ClientPlan, TaskVolume } from '@/types';
 
 type TabName = 'clients' | 'members' | 'tasks' | 'distribute' | 'plans' | 'templates';
 
@@ -107,6 +107,16 @@ export default function Home() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ plan }),
+    });
+    const updated = await res.json();
+    setClients(prev => prev.map(c => (c._id === id ? updated : c)));
+  };
+
+  const updateTaskVolume = async (id: string, taskVolume: TaskVolume) => {
+    const res = await fetch(`/api/clients/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ taskVolume }),
     });
     const updated = await res.json();
     setClients(prev => prev.map(c => (c._id === id ? updated : c)));
@@ -333,7 +343,7 @@ export default function Home() {
         <DistributionTab clients={clients} members={members} tasks={tasks} />
       )}
       {activeTab === 'plans' && (
-        <PlansTab clients={clients} onUpdatePlan={updateClientPlan} />
+        <PlansTab clients={clients} onUpdatePlan={updateClientPlan} onUpdateTaskVolume={updateTaskVolume} />
       )}
       {activeTab === 'templates' && (
         <TemplatesTab

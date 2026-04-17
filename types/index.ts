@@ -1,10 +1,12 @@
 export type ClientPlan = 'part-time' | 'full-time' | 'maintenance' | '';
+export type TaskVolume = 'low' | 'medium' | 'high' | '';
 
 export interface IClient {
   _id: string;
   name: string;
   project: string;
   plan: ClientPlan;
+  taskVolume: TaskVolume;
 }
 
 export interface IMember {

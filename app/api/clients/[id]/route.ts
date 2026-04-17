@@ -12,12 +12,13 @@ export async function PATCH(
     await dbConnect();
     const body = await request.json();
     const fields: Record<string, string> = {};
-    if (body.plan !== undefined) fields.plan = body.plan ?? '';
-    if (body.name !== undefined) fields.name = body.name.trim();
+    if (body.plan       !== undefined) fields.plan       = body.plan       ?? '';
+    if (body.name       !== undefined) fields.name       = body.name.trim();
+    if (body.taskVolume !== undefined) fields.taskVolume = body.taskVolume ?? '';
     const updated = await Client.findByIdAndUpdate(
       id,
       { $set: fields },
-      { new: true }
+      { new: true, strict: false }
     ).lean();
     if (!updated) return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     return NextResponse.json(updated);

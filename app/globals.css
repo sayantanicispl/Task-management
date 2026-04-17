@@ -179,6 +179,9 @@ button.danger:hover { background: var(--danger-bg); }
   font-size: 12px; font-weight: 500;
 }
 
+.plan-badge-edit { gap: 5px; user-select: none; }
+.plan-badge-edit:hover { filter: brightness(0.93); }
+
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
