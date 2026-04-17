@@ -26,6 +26,7 @@ const TAB_IDS = TABS.map(t => t.id);
 export default function Home() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabName>('clients');
+  const [isDark, setIsDark] = useState(false);
   const [clients, setClients] = useState<IClient[]>([]);
   const [members, setMembers] = useState<IMember[]>([]);
   const [tasks, setTasks] = useState<ITask[]>([]);
@@ -37,6 +38,19 @@ export default function Home() {
     const saved = localStorage.getItem('activeTab') as TabName | null;
     if (saved && TAB_IDS.includes(saved)) setActiveTab(saved);
   }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setIsDark(saved ? saved === 'dark' : systemDark);
+  }, []);
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+  };
 
   const fetchAll = useCallback(async () => {
     try {
@@ -267,7 +281,12 @@ export default function Home() {
     <div className="wrap">
       <div className="dash-header">
         <h1 style={{ margin: 0 }}>Team Task Manager</h1>
-        <button onClick={handleLogout} className="logout-btn">Sign out</button>
+        <div className="dash-header-right">
+          <button className="theme-toggle" onClick={toggleTheme} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+            {isDark ? '🌞' : '🌙'}
+          </button>
+          <button onClick={handleLogout} className="logout-btn">Sign out</button>
+        </div>
       </div>
       <div className="tabs">
         {TABS.map(tab => (

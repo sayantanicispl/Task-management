@@ -17,8 +17,10 @@
   --danger-bg: #fcebeb;
 }
 
+/* ── Dark mode variables ── */
+/* Shared rule applied by both the media query and the manual toggle class */
 @media (prefers-color-scheme: dark) {
-  :root {
+  html:not([data-theme="light"]) {
     --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #333330;
     --text: #f0ede8; --text2: #a8a8a3; --text3: #6b6b68;
     --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
@@ -32,10 +34,28 @@
     --danger-text: #f09595;
     --danger-border: rgba(240,149,149,0.3);
     --danger-bg: rgba(163,45,45,0.2);
+    color-scheme: dark;
   }
 }
 
-html { color-scheme: light dark; }
+html[data-theme="dark"] {
+  --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #333330;
+  --text: #f0ede8; --text2: #a8a8a3; --text3: #6b6b68;
+  --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+  --blue-bg: #0c447c;   --blue-text: #b5d4f4;
+  --teal-bg: #085041;   --teal-text: #9fe1cb;
+  --amber-bg: #633806;  --amber-text: #fac775;
+  --purple-bg: #3c3489; --purple-text: #cecbf6;
+  --coral-bg: #712b13;  --coral-text: #f5c4b3;
+  --pink-bg: #72243e;   --pink-text: #f4c0d1;
+  --green-bg: #27500a;  --green-text: #c0dd97;
+  --danger-text: #f09595;
+  --danger-border: rgba(240,149,149,0.3);
+  --danger-bg: rgba(163,45,45,0.2);
+  color-scheme: dark;
+}
+
+html { color-scheme: light; }
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
@@ -506,6 +526,24 @@ button.danger:hover { background: var(--danger-bg); }
   border-color: var(--border);
 }
 .logout-btn:hover { color: var(--danger-text); border-color: var(--danger-border); background: var(--danger-bg); }
+
+.dash-header-right { display: flex; align-items: center; gap: 8px; }
+
+.theme-toggle {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border-radius: var(--radius);
+  border: 0.5px solid var(--border);
+  background: var(--bg2);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.theme-toggle:hover { background: var(--bg3); }
 
 /* ── Login page ── */
 .login-wrap {
