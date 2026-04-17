@@ -24,16 +24,18 @@ export async function GET(
       Client.find({ _id: { $in: clientIds } }).lean(),
     ]);
 
-    const clientMap = new Map(clients.map(c => [c._id.toString(), c.name]));
+    const clientMap = new Map(
+  clients.map((c: any) => [String(c._id), c.name])
+);
 
-    const result = tasks.map(t => ({
+    const result = tasks.map((t: any) => ({
       _id: t._id,
       name: t.name,
       status: t.status ?? '',
       timeSpent: t.timeSpent ?? 0,
       done: t.done ?? false,
-      clientId: t.clientId ? t.clientId.toString() : null,
-      clientName: t.clientId ? (clientMap.get(t.clientId.toString()) ?? null) : null,
+      clientId: t.clientId ? String(t.clientId) : null,
+clientName: t.clientId ? (clientMap.get(String(t.clientId)) ?? null) : null,
       createdAt: (t as { createdAt?: Date }).createdAt?.toISOString() ?? new Date().toISOString(),
     }));
 
