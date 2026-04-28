@@ -139,17 +139,19 @@ export default function MembersTab({
                 <button onClick={() => router.push(`/team-members/${m._id}`)}>
                   View Profile
                 </button>
-                <button onClick={() => router.push(`/team-members/${m._id}/work-status`)}>
-                  Work Status
-                </button>
-                <button
-                  className="send-tasks-btn"
-                  onClick={() => handleSendTasks(m._id, m.name, m.email)}
-                  disabled={sending === m._id}
-                  title={m.email ? `Send tasks to ${m.email}` : 'No email set — add in profile'}
-                >
-                  {sending === m._id ? 'Sending…' : '✉ Send Tasks'}
-                </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <button onClick={() => router.push(`/team-members/${m._id}/work-status`)}>
+                    Work Status
+                  </button>
+                  <button
+                    className="send-tasks-btn"
+                    onClick={() => handleSendTasks(m._id, m.name, m.email)}
+                    disabled={sending === m._id}
+                    title={m.email ? `Send tasks to ${m.email}` : 'No email set — add in profile'}
+                  >
+                    {sending === m._id ? 'Sending…' : '✉ Send Tasks'}
+                  </button>
+                </div>
                 <button className="danger" onClick={() => onRemove(m._id)}>
                   Remove
                 </button>

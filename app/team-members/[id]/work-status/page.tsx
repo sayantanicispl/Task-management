@@ -64,9 +64,11 @@ export default function WorkStatusPage() {
   const router = useRouter();
 
   const [memberName, setMemberName] = useState('');
+  const [memberEmail, setMemberEmail] = useState('');
   const [tasks, setTasks] = useState<WorkTask[]>([]);
   const [statuses, setStatuses] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
 
   const fetchData = useCallback(async () => {
     const [memberRes, tasksRes] = await Promise.all([
@@ -76,6 +78,7 @@ export default function WorkStatusPage() {
     if (memberRes.ok) {
       const m = await memberRes.json();
       setMemberName(m.name ?? '');
+      setMemberEmail(m.email ?? '');
     }
     if (tasksRes.ok) {
       const t: WorkTask[] = await tasksRes.json();

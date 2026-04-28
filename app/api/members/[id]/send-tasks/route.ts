@@ -6,7 +6,9 @@ import { Task } from '@/models/Task';
 import { Client } from '@/models/Client';
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
@@ -137,12 +139,14 @@ export async function POST(
       </html>
     `;
 
-    await transporter.sendMail({
+    console.log('[send-tasks] Sending to:', member.email, '| GMAIL_USER:', process.env.GMAIL_USER);
+    const info = await transporter.sendMail({
       from: `"${teamName}" <${process.env.GMAIL_USER}>`,
       to: member.email,
       subject: `Your Task List — ${today}`,
       html,
     });
+    console.log('[send-tasks] Accepted:', info.accepted, '| MessageId:', info.messageId);
 
     return NextResponse.json({ success: true, sentTo: member.email });
   } catch (e: any) {
