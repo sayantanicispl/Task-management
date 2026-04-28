@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
+  uri: string | null;
 }
 
 declare global {
@@ -10,7 +11,7 @@ declare global {
   var mongoose: MongooseCache | undefined;
 }
 
-const cached: MongooseCache = global.mongoose ?? { conn: null, promise: null };
+const cached: MongooseCache = global.mongoose ?? { conn: null, promise: null, uri: null };
 if (!global.mongoose) global.mongoose = cached;
 
 export default async function dbConnect(): Promise<typeof mongoose> {
@@ -18,6 +19,13 @@ export default async function dbConnect(): Promise<typeof mongoose> {
   if (!uri) {
     throw new Error('Please define the MONGODB_URI environment variable in .env.local');
   }
+
+  // Reset cache if URI changed (e.g. switching branches or env files)
+  if (cached.uri && cached.uri !== uri) {
+    cached.conn = null;
+    cached.promise = null;
+  }
+  cached.uri = uri;
 
   if (cached.conn) return cached.conn;
 

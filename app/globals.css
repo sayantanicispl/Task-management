@@ -182,6 +182,15 @@ button.danger:hover { background: var(--danger-bg); }
 .plan-badge-edit { gap: 5px; user-select: none; }
 .plan-badge-edit:hover { filter: brightness(0.93); }
 
+.send-tasks-btn {
+  font-size: 13px;
+  color: var(--teal-text);
+  background: var(--teal-bg);
+  border-color: transparent;
+}
+.send-tasks-btn:hover:not(:disabled) { filter: brightness(0.93); }
+.send-tasks-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

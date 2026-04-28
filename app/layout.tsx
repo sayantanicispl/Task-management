@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Team Task Manager',
+  title: `${process.env.NEXT_PUBLIC_TEAM_NAME ?? "Sayantani's Team"} · Task Manager`,
   description: 'Manage team tasks, clients, and distribution',
 };
 

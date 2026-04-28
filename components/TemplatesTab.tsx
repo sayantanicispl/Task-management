@@ -99,7 +99,7 @@ export default function TemplatesTab({
 
   return (
     <div>
-      <div className="section-title">Templates1</div>
+      <div className="section-title">Templates</div>
 
       {/* Add category form */}
       <div className="card">

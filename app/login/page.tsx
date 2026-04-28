@@ -42,7 +42,8 @@ export default function LoginPage() {
       <div className="login-card">
         <div className="login-header">
           <div className="login-icon">✓</div>
-          <h1 className="login-title">Team Task Manager</h1>
+          <h1 className="login-title">{process.env.NEXT_PUBLIC_TEAM_NAME ?? "Sayantani's Team"}</h1>
+          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 2 }}>Task Manager</p>
           <p className="login-sub">Sign in to access your dashboard</p>
         </div>
 

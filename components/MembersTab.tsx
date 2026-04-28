@@ -26,6 +26,23 @@ export default function MembersTab({
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState<string | null>(null);
+
+  const handleSendTasks = async (memberId: string, memberName: string, email?: string) => {
+    if (!email) {
+      alert(`${memberName} has no email address. Please add one in their profile first.`);
+      return;
+    }
+    setSending(memberId);
+    const res = await fetch(`/api/members/${memberId}/send-tasks`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      alert(`Task list sent to ${data.sentTo} ✓`);
+    } else {
+      alert('Failed to send: ' + data.error);
+    }
+    setSending(null);
+  };
 
   const handleAdd = async () => {
     if (!name.trim()) return;
@@ -124,6 +141,14 @@ export default function MembersTab({
                 </button>
                 <button onClick={() => router.push(`/team-members/${m._id}/work-status`)}>
                   Work Status
+                </button>
+                <button
+                  className="send-tasks-btn"
+                  onClick={() => handleSendTasks(m._id, m.name, m.email)}
+                  disabled={sending === m._id}
+                  title={m.email ? `Send tasks to ${m.email}` : 'No email set — add in profile'}
+                >
+                  {sending === m._id ? 'Sending…' : '✉ Send Tasks'}
                 </button>
                 <button className="danger" onClick={() => onRemove(m._id)}>
                   Remove

@@ -174,17 +174,6 @@ export default function Home() {
     setTasks(prev => prev.filter(t => t._id !== id));
   };
 
-  const toggleTask = async (id: string) => {
-    const task = tasks.find(t => t._id === id);
-    if (!task) return;
-    const res = await fetch(`/api/tasks/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ done: !task.done }),
-    });
-    const updated = await res.json();
-    setTasks(prev => prev.map(t => (t._id === id ? updated : t)));
-  };
 
   const updateTaskTime = async (id: string, hours: number) => {
     const res = await fetch(`/api/tasks/${id}`, {
@@ -290,7 +279,10 @@ export default function Home() {
   return (
     <div className="wrap">
       <div className="dash-header">
-        <h1 style={{ margin: 0 }}>Team Task Manager</h1>
+        <div style={{ margin: 0 }}>
+          <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, lineHeight: 1.2 }}>{process.env.NEXT_PUBLIC_TEAM_NAME ?? "Sayantani's Team"}</h1>
+          <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text3)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Task Manager</span>
+        </div>
         <div className="dash-header-right">
           <button className="theme-toggle" onClick={toggleTheme} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
             {isDark ? '🌞' : '🌙'}
