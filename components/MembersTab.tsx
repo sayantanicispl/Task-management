@@ -12,6 +12,7 @@ interface Props {
   onRemove: (id: string) => Promise<void>;
   onUpdateClients: (memberId: string, clientIds: string[]) => Promise<void>;
   onUpdatePhoto: (memberId: string, photo: string) => Promise<void>;
+  onUpdateShift: (memberId: string, isNightShift: boolean) => Promise<void>;
 }
 
 export default function MembersTab({
@@ -21,28 +22,12 @@ export default function MembersTab({
   onRemove,
   onUpdateClients,
   onUpdatePhoto,
+  onUpdateShift,
 }: Props) {
   const router = useRouter();
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sending, setSending] = useState<string | null>(null);
-
-  const handleSendTasks = async (memberId: string, memberName: string, email?: string) => {
-    if (!email) {
-      alert(`${memberName} has no email address. Please add one in their profile first.`);
-      return;
-    }
-    setSending(memberId);
-    const res = await fetch(`/api/members/${memberId}/send-tasks`, { method: 'POST' });
-    const data = await res.json();
-    if (res.ok) {
-      alert(`Task list sent to ${data.sentTo} ✓`);
-    } else {
-      alert('Failed to send: ' + data.error);
-    }
-    setSending(null);
-  };
 
   const handleAdd = async () => {
     if (!name.trim()) return;
@@ -89,6 +74,10 @@ export default function MembersTab({
     await onUpdateClients(memberId, checked ? clients.map(c => c._id) : []);
   };
 
+  const toggleShift = async (memberId: string, currentIsNight: boolean) => {
+    await onUpdateShift(memberId, !currentIsNight);
+  };
+
   return (
     <div>
       <div className="section-title">Team members</div>
@@ -133,25 +122,25 @@ export default function MembersTab({
                   onClick={() => handlePhotoUpload(m._id)}
                 />
                 <div className="meta">
-                  <div className="meta-name">{m.name}</div>
+                  <div className="meta-name" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {m.name}
+                    {m.isNightShift && <span className="night-shift-badge">🌙 Night Shift</span>}
+                  </div>
                   {m.role && <div className="meta-sub">{m.role}</div>}
                 </div>
+                <button
+                  className={m.isNightShift ? 'night-shift-btn active' : 'night-shift-btn'}
+                  onClick={() => toggleShift(m._id, !!m.isNightShift)}
+                  title={m.isNightShift ? 'Switch to Regular Shift' : 'Switch to Night Shift'}
+                >
+                  {m.isNightShift ? '🌙 Night' : '☀ Regular'}
+                </button>
                 <button onClick={() => router.push(`/team-members/${m._id}`)}>
                   View Profile
                 </button>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <button onClick={() => router.push(`/team-members/${m._id}/work-status`)}>
-                    Work Status
-                  </button>
-                  <button
-                    className="send-tasks-btn"
-                    onClick={() => handleSendTasks(m._id, m.name, m.email)}
-                    disabled={sending === m._id}
-                    title={m.email ? `Send tasks to ${m.email}` : 'No email set — add in profile'}
-                  >
-                    {sending === m._id ? 'Sending…' : '✉ Send Tasks'}
-                  </button>
-                </div>
+                <button onClick={() => router.push(`/team-members/${m._id}/work-status`)}>
+                  Work Status
+                </button>
                 <button className="danger" onClick={() => onRemove(m._id)}>
                   Remove
                 </button>

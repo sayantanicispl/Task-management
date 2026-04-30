@@ -10,7 +10,9 @@ const MemberSchema = new Schema(
     contact: { type: String, default: '' },
     experience: { type: String, default: '' },
     telegram: { type: String, default: '' },
+    telegramChatId: { type: String, default: '' },
     skills: [{ type: String }],
+    isNightShift: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

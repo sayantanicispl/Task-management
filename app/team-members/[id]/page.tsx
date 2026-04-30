@@ -6,10 +6,11 @@ import type { IMember } from '@/types';
 import { cc, initials } from '@/lib/utils';
 
 const BASIC_FIELDS: { label: string; key: keyof IMember; placeholder: string }[] = [
-  { label: 'Email',      key: 'email',      placeholder: 'email@example.com' },
-  { label: 'Contact',    key: 'contact',    placeholder: '10-digit number' },
-  { label: 'Experience', key: 'experience', placeholder: 'e.g. 3 years' },
-  { label: 'Telegram ID', key: 'telegram',  placeholder: '@username' },
+  { label: 'Email',            key: 'email',          placeholder: 'email@example.com' },
+  { label: 'Contact',          key: 'contact',        placeholder: '10-digit number' },
+  { label: 'Experience',       key: 'experience',     placeholder: 'e.g. 3 years' },
+  { label: 'Telegram ID',      key: 'telegram',       placeholder: '@username' },
+  { label: 'Telegram Chat ID', key: 'telegramChatId', placeholder: 'Numeric ID — get from @userinfobot' },
 ];
 
 const SKILL_OPTIONS = [
@@ -22,7 +23,7 @@ const SKILL_OPTIONS = [
   'Figma', 'Project Management', 'Digital Marketing',
 ];
 
-type FormState = { name: string; role: string; email: string; contact: string; experience: string; telegram: string; };
+type FormState = { name: string; role: string; email: string; contact: string; experience: string; telegram: string; telegramChatId: string; };
 
 export default function MemberDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +33,7 @@ export default function MemberDetailPage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState<FormState>({ name: '', role: '', email: '', contact: '', experience: '', telegram: '' });
+  const [form, setForm] = useState<FormState>({ name: '', role: '', email: '', contact: '', experience: '', telegram: '', telegramChatId: '' });
   const [skills, setSkills] = useState<string[]>([]);
   const [skillSelect, setSkillSelect] = useState('');
   const [skillCustom, setSkillCustom] = useState('');
@@ -41,6 +42,7 @@ export default function MemberDetailPage() {
     name: m.name || '', role: m.role || '',
     email: m.email || '', contact: m.contact || '',
     experience: m.experience || '', telegram: m.telegram || '',
+    telegramChatId: m.telegramChatId || '',
   });
 
   const fetchMember = useCallback(async () => {

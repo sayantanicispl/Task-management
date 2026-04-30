@@ -47,7 +47,7 @@ function formatDateLabel(isoDate: string) {
   });
 }
 
-function groupByDate(tasks: WorkTask[], statuses: Record<string, string>): DayGroup[] {
+function groupByDate(tasks: WorkTask[]): DayGroup[] {
   const map = new Map<string, WorkTask[]>();
   for (const t of tasks) {
     const key = toDateKey(t.createdAt);
@@ -69,6 +69,8 @@ export default function WorkStatusPage() {
   const [statuses, setStatuses] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [sendingTelegram, setSendingTelegram] = useState(false);
+  const [memberTelegramChatId, setMemberTelegramChatId] = useState('');
 
   const fetchData = useCallback(async () => {
     const [memberRes, tasksRes] = await Promise.all([
@@ -79,6 +81,7 @@ export default function WorkStatusPage() {
       const m = await memberRes.json();
       setMemberName(m.name ?? '');
       setMemberEmail(m.email ?? '');
+      setMemberTelegramChatId(m.telegramChatId ?? '');
     }
     if (tasksRes.ok) {
       const t: WorkTask[] = await tasksRes.json();
@@ -100,9 +103,41 @@ export default function WorkStatusPage() {
     });
   };
 
+  const handleSendTasks = async () => {
+    if (!memberEmail) {
+      alert(`${memberName} has no email address. Please add one in their profile first.`);
+      return;
+    }
+    setSending(true);
+    const res = await fetch(`/api/members/${id}/send-tasks`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      alert(`Task list sent to ${data.sentTo} ✓`);
+    } else {
+      alert('Failed to send: ' + data.error);
+    }
+    setSending(false);
+  };
+
+  const handleSendTelegram = async () => {
+    if (!memberTelegramChatId) {
+      alert(`${memberName} has no Telegram Chat ID. Add it in their profile first.`);
+      return;
+    }
+    setSendingTelegram(true);
+    const res = await fetch(`/api/members/${id}/send-telegram`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      alert(`Task list sent via Telegram ✓`);
+    } else {
+      alert('Failed to send: ' + data.error);
+    }
+    setSendingTelegram(false);
+  };
+
   if (loading) return <div className="wrap"><div className="empty">Loading…</div></div>;
 
-  const groups = groupByDate(tasks, statuses);
+  const groups = groupByDate(tasks);
 
   return (
     <div className="wrap">
@@ -116,6 +151,22 @@ export default function WorkStatusPage() {
         <div className="ws-summary">
           <span className="ws-summary-chip">{tasks.length} task{tasks.length !== 1 ? 's' : ''}</span>
           <span className="ws-summary-chip">{groups.length} day{groups.length !== 1 ? 's' : ''}</span>
+          <button
+            className="send-tasks-btn"
+            onClick={handleSendTasks}
+            disabled={sending}
+            title={memberEmail ? `Send tasks to ${memberEmail}` : 'No email set — add in profile'}
+          >
+            {sending ? 'Sending…' : '✉ Send Tasks'}
+          </button>
+          <button
+            className="send-tasks-btn"
+            onClick={handleSendTelegram}
+            disabled={sendingTelegram}
+            title={memberTelegramChatId ? 'Send tasks via Telegram' : 'No Telegram Chat ID — add in profile'}
+          >
+            {sendingTelegram ? 'Sending…' : '✈ Send via Telegram'}
+          </button>
         </div>
       </div>
 

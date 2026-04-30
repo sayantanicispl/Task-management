@@ -15,6 +15,7 @@ export async function PATCH(
     if (body.plan       !== undefined) fields.plan       = body.plan       ?? '';
     if (body.name       !== undefined) fields.name       = body.name.trim();
     if (body.taskVolume !== undefined) fields.taskVolume = body.taskVolume ?? '';
+    if (body.notes      !== undefined) fields.notes      = body.notes      ?? '';
     const updated = await Client.findByIdAndUpdate(
       id,
       { $set: fields },

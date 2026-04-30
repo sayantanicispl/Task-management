@@ -17,12 +17,11 @@ export async function GET(
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
 
-    const clientIds = (member as { clientIds?: unknown[] }).clientIds ?? [];
+    const col = Task.collection;
+    const tasks = await col.find({ assignedTo: id }).sort({ createdAt: -1 }).toArray();
 
-    const [tasks, clients] = await Promise.all([
-      Task.find({ clientId: { $in: clientIds } }).sort({ createdAt: -1 }).lean(),
-      Client.find({ _id: { $in: clientIds } }).lean(),
-    ]);
+    const clientIds = [...new Set(tasks.map((t: any) => t.clientId).filter(Boolean))];
+    const clients = await Client.find({ _id: { $in: clientIds } }).lean();
 
     const clientMap = new Map(
   clients.map((c: any) => [String(c._id), c.name])

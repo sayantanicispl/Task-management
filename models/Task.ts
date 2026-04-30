@@ -11,6 +11,7 @@ const TaskSchema = new Schema(
       enum: ['', 'Completed', 'In Progress', 'Hold', 'Partially Update Sent', 'In the Queue', 'Update Sent'],
       default: '',
     },
+    assignedTo: { type: Schema.Types.ObjectId, ref: 'Member' },
   },
   { timestamps: true }
 );

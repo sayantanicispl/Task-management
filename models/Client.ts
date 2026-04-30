@@ -6,6 +6,7 @@ const ClientSchema = new Schema(
     project: { type: String, default: '', trim: true },
     plan: { type: String, default: '', trim: true },
     taskVolume: { type: String, default: '', trim: true },
+    notes: { type: String, default: '' },
   },
   { timestamps: true }
 );

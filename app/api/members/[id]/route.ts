@@ -41,7 +41,7 @@ export async function PATCH(
     const { id } = await params;
     await dbConnect();
     const body = await request.json();
-    const allowed = ['clientIds', 'photo', 'name', 'role', 'email', 'contact', 'experience', 'telegram', 'skills'];
+    const allowed = ['clientIds', 'photo', 'name', 'role', 'email', 'contact', 'experience', 'telegram', 'telegramChatId', 'skills', 'isNightShift'];
     const update: Record<string, unknown> = {};
     for (const key of allowed) {
       if (body[key] !== undefined) update[key] = body[key];
@@ -51,7 +51,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
     return NextResponse.json(member);
-  } catch {
-    return NextResponse.json({ error: 'Failed to update member' }, { status: 500 });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message ?? 'Failed to update member' }, { status: 500 });
   }
 }

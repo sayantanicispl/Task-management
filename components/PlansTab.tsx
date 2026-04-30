@@ -20,13 +20,25 @@ interface Props {
   clients: IClient[];
   onUpdatePlan: (id: string, plan: ClientPlan) => Promise<void>;
   onUpdateTaskVolume: (id: string, taskVolume: TaskVolume) => Promise<void>;
+  onUpdateNotes: (id: string, notes: string) => Promise<void>;
+}
+
+interface NotePopover {
+  clientId: string;
+  text: string;
+  saving: boolean;
+  top: number;
+  left: number;
 }
 
 type EditTarget = { clientId: string; field: 'plan' | 'volume' };
 
-export default function PlansTab({ clients, onUpdatePlan, onUpdateTaskVolume }: Props) {
+export default function PlansTab({ clients, onUpdatePlan, onUpdateTaskVolume, onUpdateNotes }: Props) {
   const [editing, setEditing] = useState<EditTarget | null>(null);
+  const [notePopover, setNotePopover] = useState<NotePopover | null>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
+  const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const openEdit = (clientId: string, field: 'plan' | 'volume') => {
     setEditing({ clientId, field });
@@ -37,6 +49,46 @@ export default function PlansTab({ clients, onUpdatePlan, onUpdateTaskVolume }: 
 
   const isEditing = (clientId: string, field: 'plan' | 'volume') =>
     editing?.clientId === clientId && editing?.field === field;
+
+  const handleNoteEnter = (e: React.MouseEvent<HTMLElement>, clientId: string, note: string) => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    if (openTimerRef.current) clearTimeout(openTimerRef.current);
+    const rect = e.currentTarget.getBoundingClientRect();
+    openTimerRef.current = setTimeout(() => {
+      setNotePopover({ clientId, text: note ?? '', saving: false, top: rect.bottom + 8, left: rect.left });
+    }, 180);
+  };
+
+  const handleNoteLeave = () => {
+    if (openTimerRef.current) clearTimeout(openTimerRef.current);
+    closeTimerRef.current = setTimeout(() => setNotePopover(null), 320);
+  };
+
+  const keepPopoverOpen = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+  };
+
+  const saveNote = async () => {
+    if (!notePopover) return;
+    setNotePopover(p => p ? { ...p, saving: true } : null);
+    await onUpdateNotes(notePopover.clientId, notePopover.text);
+    setNotePopover(null);
+  };
+
+  const ClientName = ({ c }: { c: IClient }) => (
+    <div
+      className="meta-name"
+      style={{ cursor: 'default', display: 'flex', alignItems: 'center', gap: 5 }}
+      onMouseEnter={e => handleNoteEnter(e, c._id, c.notes ?? '')}
+      onMouseLeave={handleNoteLeave}
+    >
+      {c.name}
+      {c.notes
+        ? <span className="note-indicator has-note" title="Has notes">📝</span>
+        : <span className="note-indicator no-note" title="Add a note">+</span>
+      }
+    </div>
+  );
 
   return (
     <div>
@@ -60,20 +112,20 @@ export default function PlansTab({ clients, onUpdatePlan, onUpdateTaskVolume }: 
       {!clients.length ? (
         <div className="empty">No clients yet. Add clients from the Clients tab.</div>
       ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="card" style={{ padding: 0, overflow: 'visible' }}>
           {clients.map((c, i) => {
             const col = cc(i);
-            const planInfo  = PLANS.find(p => p.value === c.plan);
-            const volInfo   = VOLUMES.find(v => v.value === c.taskVolume);
+            const planInfo = PLANS.find(p => p.value === c.plan);
+            const volInfo  = VOLUMES.find(v => v.value === c.taskVolume);
 
             return (
-              <div key={c._id} className="list-item" style={{ padding: '10px 16px' }}>
+              <div key={c._id} className="list-item" style={{ padding: '10px 16px', overflow: 'visible' }}>
                 <div className="avatar" style={{ background: col.bg, color: col.color, flexShrink: 0 }}>
                   {initials(c.name)}
                 </div>
 
                 <div className="meta">
-                  <div className="meta-name">{c.name}</div>
+                  <ClientName c={c} />
                   {c.project && <div className="meta-sub">{c.project}</div>}
                 </div>
 
@@ -85,10 +137,7 @@ export default function PlansTab({ clients, onUpdatePlan, onUpdateTaskVolume }: 
                       ref={selectRef}
                       autoFocus
                       value={c.plan ?? ''}
-                      onChange={async e => {
-                        await onUpdatePlan(c._id, e.target.value as ClientPlan);
-                        closeEdit();
-                      }}
+                      onChange={async e => { await onUpdatePlan(c._id, e.target.value as ClientPlan); closeEdit(); }}
                       onBlur={closeEdit}
                       style={{ flex: 'none', minWidth: 0, width: 'auto', fontSize: 13, padding: '4px 8px' }}
                     >
@@ -99,11 +148,7 @@ export default function PlansTab({ clients, onUpdatePlan, onUpdateTaskVolume }: 
                     <span
                       className="chip plan-badge-edit"
                       title="Click to change"
-                      style={{
-                        background: planInfo?.bg  ?? 'var(--bg3)',
-                        color:      planInfo?.color ?? 'var(--text3)',
-                        cursor: 'pointer',
-                      }}
+                      style={{ background: planInfo?.bg ?? 'var(--bg3)', color: planInfo?.color ?? 'var(--text3)', cursor: 'pointer' }}
                       onClick={() => openEdit(c._id, 'plan')}
                     >
                       {planInfo?.label ?? 'No plan'} ✎
@@ -115,10 +160,7 @@ export default function PlansTab({ clients, onUpdatePlan, onUpdateTaskVolume }: 
                     <select
                       autoFocus
                       value={c.taskVolume ?? ''}
-                      onChange={async e => {
-                        await onUpdateTaskVolume(c._id, e.target.value as TaskVolume);
-                        closeEdit();
-                      }}
+                      onChange={async e => { await onUpdateTaskVolume(c._id, e.target.value as TaskVolume); closeEdit(); }}
                       onBlur={closeEdit}
                       style={{ flex: 'none', minWidth: 0, width: 'auto', fontSize: 13, padding: '4px 8px' }}
                     >
@@ -129,11 +171,7 @@ export default function PlansTab({ clients, onUpdatePlan, onUpdateTaskVolume }: 
                     <span
                       className="chip plan-badge-edit"
                       title="Click to change"
-                      style={{
-                        background: volInfo?.bg  ?? 'var(--bg3)',
-                        color:      volInfo?.color ?? 'var(--text3)',
-                        cursor: 'pointer',
-                      }}
+                      style={{ background: volInfo?.bg ?? 'var(--bg3)', color: volInfo?.color ?? 'var(--text3)', cursor: 'pointer' }}
                       onClick={() => openEdit(c._id, 'volume')}
                     >
                       {volInfo?.label ?? 'Task Volume'} ✎
@@ -163,17 +201,17 @@ export default function PlansTab({ clients, onUpdatePlan, onUpdateTaskVolume }: 
                 }}>
                   {p.label} ({group.length})
                 </div>
-                <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                <div className="card" style={{ padding: 0, overflow: 'visible' }}>
                   {group.map(c => {
-                    const col    = cc(clients.indexOf(c));
+                    const col     = cc(clients.indexOf(c));
                     const volInfo = VOLUMES.find(v => v.value === c.taskVolume);
                     return (
-                      <div key={c._id} className="list-item" style={{ padding: '8px 16px' }}>
+                      <div key={c._id} className="list-item" style={{ padding: '8px 16px', overflow: 'visible' }}>
                         <div className="avatar" style={{ background: col.bg, color: col.color, width: 28, height: 28, fontSize: 11 }}>
                           {initials(c.name)}
                         </div>
                         <div className="meta">
-                          <div className="meta-name" style={{ fontSize: 13 }}>{c.name}</div>
+                          <ClientName c={c} />
                           {c.project && <div className="meta-sub">{c.project}</div>}
                         </div>
                         <span className="chip" style={{
@@ -191,6 +229,36 @@ export default function PlansTab({ clients, onUpdatePlan, onUpdateTaskVolume }: 
             );
           })}
         </>
+      )}
+
+      {/* Note popover — fixed so it escapes overflow:hidden containers */}
+      {notePopover && (
+        <div
+          className="note-popover"
+          style={{ top: notePopover.top, left: notePopover.left }}
+          onMouseEnter={keepPopoverOpen}
+          onMouseLeave={handleNoteLeave}
+        >
+          <div className="note-popover-header">
+            <span>📝 Notes</span>
+            <button className="note-popover-close" onClick={() => setNotePopover(null)}>✕</button>
+          </div>
+          <textarea
+            className="note-popover-textarea"
+            value={notePopover.text}
+            onChange={e => setNotePopover(p => p ? { ...p, text: e.target.value } : null)}
+            placeholder="Add a note for this client…"
+            rows={4}
+            autoFocus
+          />
+          <button
+            className="note-popover-save"
+            onClick={saveNote}
+            disabled={notePopover.saving}
+          >
+            {notePopover.saving ? 'Saving…' : 'Save'}
+          </button>
+        </div>
       )}
     </div>
   );

@@ -8,9 +8,10 @@ import TasksTab from '@/components/TasksTab';
 import DistributionTab from '@/components/DistributionTab';
 import PlansTab from '@/components/PlansTab';
 import TemplatesTab from '@/components/TemplatesTab';
+import EodTab from '@/components/EodTab';
 import type { IClient, IMember, ITask, ICategory, ClientPlan, TaskVolume } from '@/types';
 
-type TabName = 'clients' | 'members' | 'tasks' | 'distribute' | 'plans' | 'templates';
+type TabName = 'clients' | 'members' | 'tasks' | 'distribute' | 'plans' | 'templates' | 'eod';
 
 const TABS: { id: TabName; label: string }[] = [
   { id: 'clients', label: 'Clients' },
@@ -19,6 +20,7 @@ const TABS: { id: TabName; label: string }[] = [
   { id: 'distribute', label: 'Distribution' },
   { id: 'plans', label: 'Plans' },
   { id: 'templates', label: 'Templates' },
+  { id: 'eod', label: "Client's EOD" },
 ];
 
 const TAB_IDS = TABS.map(t => t.id);
@@ -122,6 +124,16 @@ export default function Home() {
     setClients(prev => prev.map(c => (c._id === id ? updated : c)));
   };
 
+  const updateClientNotes = async (id: string, notes: string) => {
+    const res = await fetch(`/api/clients/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes }),
+    });
+    const updated = await res.json();
+    setClients(prev => prev.map(c => (c._id === id ? updated : c)));
+  };
+
   /* ---- Members ---- */
   const addMember = async (name: string, role: string) => {
     const res = await fetch('/api/members', {
@@ -158,6 +170,16 @@ export default function Home() {
     setMembers(prev => prev.map(m => (m._id === memberId ? updated : m)));
   };
 
+  const updateMemberShift = async (memberId: string, isNightShift: boolean) => {
+    const res = await fetch(`/api/members/${memberId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isNightShift }),
+    });
+    const updated = await res.json();
+    setMembers(prev => prev.map(m => (m._id === memberId ? updated : m)));
+  };
+
   /* ---- Tasks ---- */
   const addTask = async (name: string, clientId: string | null) => {
     const res = await fetch('/api/tasks', {
@@ -165,8 +187,9 @@ export default function Home() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, clientId }),
     });
-    const task = await res.json();
-    setTasks(prev => [...prev, task]);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? 'Failed to create task');
+    setTasks(prev => [...prev, data]);
   };
 
   const removeTask = async (id: string) => {
@@ -319,6 +342,7 @@ export default function Home() {
           onRemove={removeMember}
           onUpdateClients={updateMemberClients}
           onUpdatePhoto={updateMemberPhoto}
+          onUpdateShift={updateMemberShift}
         />
       )}
       {activeTab === 'tasks' && (
@@ -335,7 +359,7 @@ export default function Home() {
         <DistributionTab clients={clients} members={members} tasks={tasks} />
       )}
       {activeTab === 'plans' && (
-        <PlansTab clients={clients} onUpdatePlan={updateClientPlan} onUpdateTaskVolume={updateTaskVolume} />
+        <PlansTab clients={clients} onUpdatePlan={updateClientPlan} onUpdateTaskVolume={updateTaskVolume} onUpdateNotes={updateClientNotes} />
       )}
       {activeTab === 'templates' && (
         <TemplatesTab
@@ -347,6 +371,9 @@ export default function Home() {
           onUpdateTemplate={updateTemplate}
           onRemoveTemplate={removeTemplate}
         />
+      )}
+      {activeTab === 'eod' && (
+        <EodTab clients={clients} />
       )}
     </div>
   );

@@ -7,6 +7,7 @@ export interface IClient {
   project: string;
   plan: ClientPlan;
   taskVolume: TaskVolume;
+  notes?: string;
 }
 
 export interface IMember {
@@ -19,7 +20,9 @@ export interface IMember {
   contact?: string;
   experience?: string;
   telegram?: string;
+  telegramChatId?: string;
   skills?: string[];
+  isNightShift?: boolean;
 }
 
 export interface ITask {
@@ -29,6 +32,20 @@ export interface ITask {
   done: boolean;
   timeSpent: number;
   status: string;
+  assignedTo?: string | null;
+  createdAt?: string;
+}
+
+export interface IEodEntry {
+  _id: string;
+  taskId: string;
+  taskName: string;
+  clientId: string | null;
+  clientName: string;
+  date: string;
+  timeSpent: number;
+  status: string;
+  isManual?: boolean;
 }
 
 export interface ITemplate {

@@ -54,11 +54,9 @@ export async function POST(
     if (!member) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     if (!member.email) return NextResponse.json({ error: 'Member has no email address set' }, { status: 400 });
 
-    const clientIds = member.clientIds ?? [];
-    const [tasks, clients] = await Promise.all([
-      Task.find({ clientId: { $in: clientIds } }).sort({ createdAt: -1 }).lean(),
-      Client.find({ _id: { $in: clientIds } }).lean(),
-    ]);
+    const tasks = await Task.collection.find({ assignedTo: id }).sort({ createdAt: -1 }).toArray();
+    const clientIds = [...new Set(tasks.map((t: any) => t.clientId).filter(Boolean))];
+    const clients = await Client.find({ _id: { $in: clientIds } }).lean();
 
     const clientMap = new Map((clients as any[]).map(c => [String(c._id), c.name]));
     const teamName = process.env.NEXT_PUBLIC_TEAM_NAME ?? "Sayantani's Team";
